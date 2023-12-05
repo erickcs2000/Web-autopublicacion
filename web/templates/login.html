@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WriDing</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                    <a href="register" style="font-weight: bold;">Sign In</a>
+                </div>
+            </nav>
+        </header>
+        <div class="navbar navbar-nav">
+            <h2>Login</h2>
+            <form action="http://localhost:5000/login" method="post" style="width: 200px;">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="login" class="btn btn-primary btn-block submit-button">
+                </div>
+            </form>
+            <p class="error-message {% if error %}show{% endif %}">{{ error }}</p>
+        </div>
+        
+
+        
+
+        <footer class="bg-dark text-white p-4 text-center foot">
+            <p>&copy; 2023 Mi Web de Novelas</p>
+        </footer>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+</html>

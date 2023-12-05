@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ novel.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header class="main-header bg-light text-dark p-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <h2><a href="/">WriDing</a></h2>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                    </ul>
+                </div>
+                {% if session['username'] %}
+                    <div class="dropdown">
+                        <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ session['username'] }}
+                        </a>
+
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                            <a class="dropdown-item" href="/signout">Sign Out</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="/login" style="font-weight: bold; margin-right:2%">Login</a>
+                    <a href="/register" style="font-weight: bold;">Sign In</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container-fluid py-4 l-5" style="padding-left: 8rem;">
+        <div class="row">
+            <div class="col-sm-4">
+                <img src="{{ url_for('static', filename=novel.cover) }}" alt="{{ novel.title }}" class="img-fluid">
+            </div>
+            <div class="col-sm-8" style="padding-left: 8rem;">
+                <div class="d-flex flex-column justify-content-start">
+                    <div class="d-flex flex-row justify-content-start align-items-baseline">
+                        <h2 class="mb-4 mr-5 boldLetter"><b>{{ novel.title }}</b></h2>
+                        <h4 class="mr-5 scores">Followers: {{ novel.followers }}</h4>
+                        <h4 class="mr-5 scores">Views: {{ novel.views }}</h4>
+                        <h4 class="mr-5 scores">Rating: {{ novel.rating }}</h4>
+                        <h4 class="scores">Likes: {{ novel.likes }}</h4>
+                    </div>
+                    <p>{{ novel.synopsis }}</p>
+                </div>
+                {% if session['username'] %}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            {% if is_following %}
+                                <form method="POST" action="{{ url_for('novels.unfollow_novel', novel_id=novel.id) }}">
+                                    <input type="submit" value="Stop following" class="btn btn-danger"/>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('novels.follow_novel', novel_id=novel.id) }}">
+                                    <input type="submit" value="Follow" class="btn btn-primary"/>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            {% if is_read_later %}
+                                <form method="POST" action="{{ url_for('novels.remove_read_later', novel_id=novel.id) }}">
+                                    <input type="submit" value="Remove from Read Later" class="btn btn-danger"/>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('novels.add_read_later', novel_id=novel.id) }}">
+                                    <input type="submit" value="Add to Read Later" class="btn btn-primary"/>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            {% if is_liked %}
+                                <form method="POST" action="{{ url_for('novels.unlike_novel', novel_id=novel.id) }}">
+                                    <input type="submit" value="Unlike" class="btn btn-danger"/>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('novels.like_novel', novel_id=novel.id) }}">
+                                    <input type="submit" value="Like" class="btn btn-primary"/>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addToLibraryModal" data-novel-id="{{ novel.id }}">
+                                Add to Library
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+
+                {% endif %}
+            </div>
+        </div>
+        <div class="chapters row">
+            <div class="col-sm-3">
+                <h4><b>Chapters</b></h4>
+            </div>
+            {% if session['username'] %}
+            <div class="col-sm-3">
+                <form action="{{ url_for('novels.add_chapter', novel_id=novel.id) }}" method="get">
+
+                    <input type="submit" value="Add Chapter" class="btn btn-primary" />
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        <div class="chapters row">
+            <ul>
+            {% for chapter in chapters %}
+                <li>
+                    <a href="{{ url_for('novels.chapter', novel_id=novel.id, number_chapter=chapter.number_chapter) }}">
+                        Chapter {{ chapter.number_chapter }}: {{ chapter.title }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white p-4 text-center foot">
+        <p>&copy; 2023 Mi Web de Novelas</p>
+    </footer>
+
+    <div class="modal fade" id="addToLibraryModal" tabindex="-1" aria-labelledby="addToLibraryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToLibraryModalLabel">Add to Library</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <input type="text" id="newLibraryName" placeholder="New Library Name">
+                        <button type="button" id="createNewLibrary">Create Library</button>
+                    </div>
+                    <div class="mt-4"id="existingLibraries"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            function loadAndDisplayLibraries(novelId) {
+                $.ajax({
+                    url: '/novel/' + novelId + '/libraries',
+                    type: 'GET',
+                    success: function(response) {
+                        var librariesHtml = '<div class="row">';
+                        response.libraries.forEach(function(library, index) {
+                            librariesHtml += '<div class="col-md-4"><p><a href="#" class="library-link" data-library-id="' + library.id + '">' + library.name + '</a></p></div>';
+                            
+                            if ((index + 1) % 3 === 0) {
+                                librariesHtml += '</div><div class="row">';
+                            }
+                        });
+                        librariesHtml += '</div>';
+    
+                        $('#existingLibraries').html(librariesHtml); 
+                    }
+                });
+            }
+    
+            $('#addToLibraryModal').on('show.bs.modal', function(e) {
+                var novelId = $(e.relatedTarget).data('novel-id');
+                $(this).data('novel-id', novelId);
+                loadAndDisplayLibraries(novelId); 
+            });
+    
+            $(document).on('click', '.library-link', function(e) {
+                e.preventDefault();
+                var libraryId = $(this).data('library-id');
+                var novelId = $('#addToLibraryModal').data('novel-id');
+    
+                $.ajax({
+                    url: '/novel/' + novelId + '/add_to_library/' + libraryId,
+                    type: 'POST',
+                    success: function(response) {
+                        alert(response.message); 
+                        $('#addToLibraryModal').modal('hide');
+                    },
+                    error: function(xhr, status, error) {
+                        alert("An error occurred: " + error);
+                    }
+                });
+            });
+    
+            $(document).on('click', '#createNewLibrary', function() {
+                var newLibraryName = $("#newLibraryName").val();
+    
+                if (newLibraryName) {
+                    var novelId = $('#addToLibraryModal').data('novel-id');
+                    $.ajax({
+                        url: '/create_library',
+                        type: 'POST',
+                        data: { library_name: newLibraryName },
+                        success: function(response) {
+                            loadAndDisplayLibraries(novelId); 
+                        },
+                        error: function(xhr, status, error) {
+                            alert("An error occurred: " + error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

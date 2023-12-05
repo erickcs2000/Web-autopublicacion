@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ user.username }}'s Profile</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    {% if session['username'] %}
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ session['username'] }}
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                                <a class="dropdown-item" href="/signout">Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                        <a href="register" style="font-weight: bold;">Sign In</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+        <div class="user_page" style="background-color:{{ user.bg_color }};">
+            <div class="container">
+                <div class="row align-items-center my-4">
+                    <div class="col-sm-3">
+                        <img id="image_profile" src="{{ url_for('static', filename='uploads/users/4/4_profile_pic.png') }}" alt="Profile picture">
+
+                        <input type="file" id="image_input" style="display: none;">
+                    </div>
+                    <div class="col-sm-3">
+                        <h1 id="username">{{ user.username }}</h1>
+                    </div>
+                    <div class="col-sm-3">
+                        <p>Followed by: {{ user.followed_users }}</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <p>Likes: {{ user.likes }}</p>
+                        <input type="color" id="bg_color" value="{{ user.bg_color }}" style="display: none;">
+                    </div>
+                </div>
+                <div class="row my-4">
+                    <div class="col-sm-12">
+                        {% if user.description == None %}
+                            <h4 id="description">.</h4>
+                        {% else %}
+                            <h4 id="description">{{ user.description }}</h4>
+                        {% endif %} 
+                    </div>
+                </div>
+                {% if session['username'] == user.username %}
+                    <button id="edit-btn" class="btn btn-primary">Edit Profile</button>
+                {% endif %}
+
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="own-tab" data-toggle="tab" href="#own">Author Novels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="followed-tab" data-toggle="tab" href="#followed">Followed Novels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="read-later-tab" data-toggle="tab" href="#read-later">Read Later</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="liked-tab" data-toggle="tab" href="#liked">Liked Novels</a>
+                    </li>
+                    
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="own">
+                        <ul>
+                            {% for novel in own_novels %}
+                                <a href="/novel/{{novel.id}}">
+                                    <div class="row align-items-center my-4">
+                                        
+                                            <div class="col-sm-3">
+                                                <img src="{{ url_for('static', filename= novel.cover.replace('\\', '/')) }}" alt="{{ novel.title }}" class="img-fluid">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h3>{{ novel.title }}</h3>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p>{{ novel.synopsis }}</p>
+                                            </div>
+                                        
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="tab-pane fade" id="followed">
+                        <ul>
+                            {% for novel in followed_novels %}
+                                <a href="/novel/{{novel.id}}">
+                                    <div class="row align-items-center my-4">
+                                        
+                                            <div class="col-sm-3">
+                                                <img src="{{ url_for('static', filename= novel.cover.replace('\\', '/')) }}" alt="{{ novel.title }}" class="img-fluid">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h3>{{ novel.title }}</h3>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p>{{ novel.synopsis }}</p>
+                                            </div>
+                                        
+                                    </div>
+                                </a>
+
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="read-later">
+                        <ul>
+                            {% for novel in readlater_novels %}
+                                <a href="/novel/{{novel.id}}">
+                                    <div class="row align-items-center my-4">
+                                        
+                                            <div class="col-sm-3">
+                                                <img src="{{ url_for('static', filename= novel.cover.replace('\\', '/')) }}" alt="{{ novel.title }}" class="img-fluid">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h3>{{ novel.title }}</h3>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p>{{ novel.synopsis }}</p>
+                                            </div>
+                                        
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="liked">
+                        <ul>
+                            {% for novel in liked_novel_novels %}
+                                <a href="/novel/{{novel.id}}">
+                                    <div class="row align-items-center my-4">
+                                        
+                                            <div class="col-sm-3">
+                                                <img src="{{ url_for('static', filename= novel.cover.replace('\\', '/')) }}" alt="{{ novel.title }}" class="img-fluid">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h3>{{ novel.title }}</h3>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p>{{ novel.synopsis }}</p>
+                                            </div>
+                                        
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>    
+
+        <footer class="bg-dark text-white p-4 text-center">
+            <p>&copy; 2023 Mi Web de Novelas</p>
+        </footer>
+        <script>
+            function getBase64(file, callback) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var dataUrl = reader.result;
+                    var base64 = dataUrl.split(',')[1];
+                    callback(base64);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            var editMode = false;
+
+            document.getElementById('edit-btn').addEventListener('click', function() {
+                if (!editMode) {
+
+                    document.getElementById('username').contentEditable = "true";
+                    document.getElementById('image_input').style.display = 'block';
+                    document.getElementById('bg_color').style.display = 'block';
+                    document.getElementById('description').contentEditable = "true";
+                    this.textContent = "Save Changes";
+                    editMode = true;
+                } else {
+                    var image_input = document.getElementById('image_input').files[0];
+                    
+                    if (image_input) {
+                        getBase64(image_input, updateProfile);
+                    } else {
+                        updateProfile();
+                    }
+            
+                    this.textContent = "Edit Profile";
+                    editMode = false;
+                }
+            });
+
+
+            function editProfile() {
+                document.getElementById('username').contentEditable = "true";
+                document.getElementById('image_input').style.display = 'block';
+                document.getElementById('bg_color').style.display = 'block';
+                document.getElementById('description').contentEditable = "true";
+                this.textContent = "Save Changes";
+            
+                this.removeEventListener('click', editProfile);
+                this.addEventListener('click', saveChanges);
+            }
+            function saveChanges() {
+                var image_input = document.getElementById('image_input').files[0];
+                
+                if (image_input) {
+                    getBase64(image_input, updateProfile);
+                } else {
+                    updateProfile();
+                }
+            }
+            
+            function updateProfile(base64Image = null) {
+                var updatedData = {
+                    'username': document.getElementById('username').textContent,
+                    'bg_color': document.getElementById('bg_color').value,
+                    'image': base64Image,
+                    'description': document.getElementById('description').textContent
+                };
+            
+                $.ajax({
+                    url: '/user/{{user.id}}/update_profile',
+                    type: 'POST',
+                    data: JSON.stringify(updatedData),
+                    contentType: 'application/json',
+                    processData: false,
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.log('Error:', response);
+                    }
+                });
+            }
+            
+            
+        </script>
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+</html>

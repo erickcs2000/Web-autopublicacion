@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WriDing</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    {% if session['username'] %}
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ session['username'] }}
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                                <a class="dropdown-item" href="signout">Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                        <a href="register" style="font-weight: bold;">Sign In</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+        <div class="container-fluid">
+            <div style="display: grid; grid-template-columns: auto 1fr auto;">
+                <a href="{{ url_for('novels.view_novel', novel_id=chapter.novel_id) }}" class="btn btn-secondary btn_title">{{ novel_title }}</a>
+                <h1 class="chapters_title text-center">{{ chapter.title }}</h1>
+                <div></div> 
+            </div>
+
+            <div class="chapters_text">
+                {{ chapter.text }}
+            </div>
+            <hr>
+            <div class="d-flex align-items-center mt-4 mb-4">
+                <div class="flex-grow-1 flex-shrink-0 px-5">
+                    <a href="{% if prev_chapter %}{{ url_for('novels.chapter', novel_id=chapter.novel_id, number_chapter=prev_chapter.number_chapter) }}{% else %}# {% endif %}">
+                        <button class="btn btn-primary" {% if not prev_chapter %} style="visibility: hidden;" {% endif %}>Previous Chapter</button>
+                    </a>
+                </div>
+            
+                <div class="form-group mb-0 flex-grow-0 flex-shrink-0 px-5">
+                    <label for="chapterSelect">Ir al Capítulo</label>
+                    <select class="form-control" id="chapterSelect" onchange="window.location.href=this.value;">
+                        {% for chap in all_chapters %}
+                            <option value="{{ url_for('novels.chapter', novel_id=chap.novel_id, number_chapter=chap.number_chapter) }}"
+                                {% if chap.number_chapter == chapter.number_chapter %} selected {% endif %}>
+                                Capítulo {{ chap.number_chapter }} - {{ chap.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="flex-grow-1 flex-shrink-0 text-right px-5">
+                    <a href="{% if next_chapter %}{{ url_for('novels.chapter', novel_id=chapter.novel_id, number_chapter=next_chapter.number_chapter) }}{% else %}# {% endif %}">
+                        <button class="btn btn-primary" {% if not next_chapter %} style="visibility: hidden;" {% endif %}>Next Chapter</button>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+        
+    </main>
+
+    <footer class="bg-dark text-white p-4 text-center">
+        <p>&copy; 2023 Mi Web de Novelas</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

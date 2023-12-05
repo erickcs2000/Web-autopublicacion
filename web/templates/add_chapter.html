@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Chapter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header class="main-header bg-light text-dark p-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <h2><a href="/">WriDing</a></h2>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                    </ul>
+                </div>
+                {% if session['username'] %}
+                    <div class="dropdown">
+                        <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ session['username'] }}
+                        </a>
+
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                            <a class="dropdown-item" href="signout">Sign Out</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                    <a href="register" style="font-weight: bold;">Sign In</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container py-4">
+        <h1>Añadir Capítulo</h1>
+        <form method="POST" action="{{ url_for('novels.save_chapter', novel_id=novel.id) }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Título</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="chapter_num">Número de Capítulo</label>
+                <select class="form-control" id="chapter_num" name="chapter_num" required>
+                    {% for num in range(1, total_chapters + 2) %}
+                        <option value="{{ num }}">{{ num }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Contenido</label>
+                <textarea class="form-control" id="content" name="content" rows="10"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="file">Subir Archivo (PDF, Word, TXT)</label>
+                <input type="file" class="form-control-file" id="file" name="file" accept=".pdf,.doc,.docx,.txt">
+            </div>
+
+            <input type="submit" value="Submit" class="btn btn-primary">
+        </form>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </head>
+
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    {% if session['username'] %}
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ session['username'] }}
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                                <a class="dropdown-item" href="signout">Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                        <a href="register" style="font-weight: bold;">Sign In</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+        
+        <main class="container py-4">
+            <h2 class="mb-3">Crear Novela</h2>
+            <form method="POST" action="{{ url_for('novels.create_novel') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Título de la Novela</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Ingresa el título de tu novela">
+                </div>
+                <div class="form-group">
+                    <label for="synopsis">Sinopsis</label>
+                    <textarea class="form-control" id="synopsis" name="synopsis" rows="3" placeholder="Describe de qué trata tu novela"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="category">Categoría</label>
+                    <div id="categories" class="d-flex flex-wrap">
+                        <input type="checkbox" id="category1" name="category" value="Romance">
+                        <label for="category1">Romance</label>
+                        <input type="checkbox" id="category2" name="category" value="Fantasía">
+                        <label for="category2">Fantasía</label>
+                        <input type="checkbox" id="category3" name="category" value="Ciencia Ficción">
+                        <label for="category3">Ciencia Ficción</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tags">Etiquetas</label>
+                    <input type="text" class="form-control" id="tags" name="tags" placeholder="Ingresa las etiquetas separadas por comas">
+                </div>
+                <div class="form-group">
+                    <label for="cover">Subir Portada</label>
+                    <input type="file" class="form-control-file" id="cover" name="cover">
+                </div>
+                <button type="submit" class="btn btn-primary">Publicar Novela</button>
+                <button type="button" class="btn btn-secondary">Guardar como Borrador</button>
+            </form>
+            
+        </main>
+        
+        <footer class="bg-dark text-white p-4 text-center">
+            <p>&copy; 2023 WriDing</p>
+        </footer>
+        
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true" >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="loginModalLabel">Iniciar sesión</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label for="username">Nombre de usuario</label>
+                      <input type="text" class="form-control" id="username">
+                    </div>
+                    <div class="form-group">
+                      <label for="password">Contraseña</label>
+                      <input type="password" class="form-control" id="password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                var isUserAuthenticated = {{ is_authenticated|tojson }};
+                console.log("Is User Authenticated: " + isUserAuthenticated);  
+                if (!isUserAuthenticated) {
+                    $('#loginModal').modal('show');
+                }
+                $('#loginModal').on('hidden.bs.modal', function () {
+                    window.location.href = '/login';
+                });
+            });
+            window.onbeforeunload = function() {
+                if (!isUserAuthenticated) {
+                    $('#loginModal').modal('show');
+                }
+            };
+        </script>
+
+
+    </body>
+</html>

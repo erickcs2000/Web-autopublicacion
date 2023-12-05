@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WriDing</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    {% if session['username'] %}
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ session['username'] }}
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                                <a class="dropdown-item" href="signout">Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                        <a href="register" style="font-weight: bold;">Sign In</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+
+        <main class="container">
+            <article>
+                <h1>{{ post.title }}</h1>
+                <p>Por: {{ post.author.username }}</p>
+                <p>{{ post.content }}</p>
+                <div>
+                    <button class="vote-button" data-post-id="{{ post.id }}" data-vote-type="up">👍</button> 
+                    <button class="vote-button" data-post-id="{{ post.id }}" data-vote-type="down">👎</button> 
+                    <span>Votos: {{ post.votes }}</span>
+                </div>
+                <div>
+                    <p>Categorías: 
+                        {% for category in post.categories %}
+                            {{ category.name }}
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    {% if post.novel %}
+                        <p>Novela: {{ post.novel.title }}</p>
+                    {% endif %}
+                </div>
+            </article>
+        
+            <div id="response-section">
+                <textarea id="response-text"></textarea>
+                <button id="submit-response" data-post-id="{{ post.id }}">Responder post</button>
+            </div>
+        
+            <section id="responses">
+                {% for response in responses %}
+                    <div class="response" id="response-{{ response.id }}">
+                        <p>{{ response.content }}</p>
+                        <div>Votos: {{ response.votes }}</div>
+            
+                        <div class="nested-responses">
+                            {% for child_response in response.children %}
+                                <div class="nested-response" id="nested-response-{{ child_response.id }}">
+                                    <p>{{ child_response.content }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+            
+                        <div>
+                            <textarea class="nested-response-text" data-parent-id="{{ response.id }}"></textarea>
+                            <button class="submit-nested-response" data-parent-id="{{ response.id }}">Responder</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </section>
+        </main>
+        
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('.vote-button').click(function() {
+                    var button = $(this);
+                    var voteCountElement = button.siblings('span'); 
+                    var postId = $(this).data('post-id');
+                    var responseId = $(this).data('response-id');
+                    var voteType = $(this).data('vote-type');
+                    var url = '/api/vote/' + (postId ? 'post/' + postId : 'response/' + responseId);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        contentType: 'application/json', 
+                        data: JSON.stringify({ is_upvote: voteType === 'up' }),
+                        success: function(data) {
+                            voteCountElement.text('Votos: ' + data.new_vote_total);
+                        }
+                    });
+                    
+                });
+            
+                $('#submit-response').click(function() {
+                    var post_id = $(this).data('post-id');
+                    var content = $('#response-text').val();
+            
+                    $.ajax({
+                        url: '/api/respond',
+                        type: 'POST',
+                        contentType: 'application/json', 
+                        data: JSON.stringify({ content: content, post_id: post_id}),
+                        success: function(response) {
+                            var newResponseHtml = '<div class="response">' +
+                                '<p>' + content + '</p>' +
+                                '<button class="vote-button" data-response-id="' + response.new_response_id + '" data-vote-type="up">👍</button> ' +
+                                '<button class="vote-button" data-response-id="' + response.new_response_id + '" data-vote-type="down">👎</button> ' +
+                                '<span>Votos: 0</span>' +
+                                '</div>';
+                                $('#responses').append(newResponseHtml);
+                            console.log(response)
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error en la respuesta: ", xhr.responseText);
+                        }
+                    });
+                });
+            
+                $('.submit-nested-response').click(function() {
+                    var parentId = $(this).data('parent-id');
+                    var content = $('.nested-response-text[data-parent-id="' + parentId + '"]').val();
+                    $.ajax({
+                        url: '/api/respond',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ content: content, parent_id: parent_id }),
+                        success: function(response) {
+                            var newNestedResponseHtml = '<div class="nested-response">' +
+                                '<p>' + content + '</p>' +
+                                '<button class="vote-button" data-response-id="' + response.new_response.author.username + '" data-vote-type="up">👍</button> ' +
+                                '<button class="vote-button" data-response-id="' + response.new_response_id + '" data-vote-type="down">👎</button> ' +
+                                '<span>Votos: 0</span>' +
+                                '</div>';
+                            responseContainer.append(newNestedResponseHtml);
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WriDing</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='slick/slick.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='slick/slick-theme.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <header class="main-header bg-light text-dark p-4">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <h2><a href="/">WriDing</a></h2>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/browser">Browse</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#rankings">Rankings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/create">Create</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                        </ul>
+                    </div>
+                    {% if session['username'] %}
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" style="font-weight: bold; margin-right:2%" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ session['username'] }}
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for('users.user', id=session['user_id']) }}">Perfil</a>
+                                <a class="dropdown-item" href="signout">Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="login" style="font-weight: bold; margin-right:2%">Login</a>
+                        <a href="register" style="font-weight: bold;">Sign In</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="#novelas-recientes">Novelas Recientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#mejor-calificadas">Mejor Calificadas</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <section id="novelas-recientes" class="mt-4">
+            <h1 class="mb-3"><b><center>Novelas Recientes</center></b></h2>
+                <div class="card"></div>
+            <div class="slider-container mt-4">
+                <div class="carousel">
+                        {% for novel in novels %}
+                        <div class="novel-container-index">
+                            <a href="{{ url_for('novels.view_novel', novel_id=novel.id) }}">
+                                <div class="rounded-cover" style="background-image: url('{{ url_for('static', filename=novel.cover) }}');">
+                                    <div class="novel-synopsis">
+                                        {{ novel.synopsis }}
+                                    </div>
+                                </div>
+                                <h3 class="novel-title" style="color: black;">{{ novel.title }}</h3>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="novelas-mejor-calificadas" class="mt-4">
+            <h1 class="mb-3"><b><center>Novelas Mejor Valoradas</center></b></h2>
+                <div class="card"></div>
+            <div class="slider-container mt-4">
+                <div class="carousel">
+                        {% for novel in novels2 %}
+                        <div class="novel-container-index">
+                            <a href="{{ url_for('novels.view_novel', novel_id=novel.id) }}">
+                                <div class="rounded-cover" style="background-image: url('{{ url_for('static', filename=novel.cover) }}');">
+                                    <div class="novel-synopsis">
+                                        {{ novel.synopsis }}
+                                    </div>
+                                </div>
+                                <h3 class="novel-title" style="color: black;">{{ novel.title }}</h3>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mejor-calificadas" class="mt-4">
+            <h2 class="mb-3">Novelas Mejor Calificadas</h2>
+            <div class="card">
+            </div>
+        </section>
+
+        <section id="envia-tu-novela" class="mt-4">
+            <h2 class="mb-3">Envía tu Novela</h2>
+            <p>¿Eres un autor buscando compartir tu novela? <a href="submit.html">Envíala aquí</a>.</p>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white p-4 text-center">
+        <p>&copy; 2023 Mi Web de Novelas</p>
+    </footer>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+</body>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('.carousel').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            centerMode: true,
+            focusOnSelect: true,
+            arrows: true,
+        });
+    });
+</script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</html>

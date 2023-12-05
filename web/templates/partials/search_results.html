@@ -1,0 +1,62 @@
+
+<style>
+    /* Estilos generales para el contenedor de novelas */
+    .novels-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 10px;
+    }
+
+    /* Estilos para cada tarjeta de novela */
+    .novel-container {
+        flex-basis: 30%; /* Ajusta este valor según prefieras */
+        margin: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .novel-container:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Estilo para la imagen de la portada */
+    .novel-cover {
+        background-size: cover;
+        background-position: center;
+        height: 200px; /* Ajusta la altura según prefieras */
+        border-radius: 10px; /* Redondea los bordes superiores */
+
+    }
+
+    /* Estilo para el título y la sinopsis */
+    .novel-title, .novel-synopsis {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .novel-synopsis {
+        color: #FFFFFF;
+        font-size: 0.9em;
+    }
+
+</style>
+
+<div class="novels-row">
+    {% for novel in results %}
+    <div class="novel-container">
+        <a href="{{ url_for('novels.view_novel', novel_id=novel.id) }}" class="novel-link">
+            <div class="novel-cover" style="background-image: url('{{ url_for('static', filename=novel.cover) }}');">
+                <div class="novel-synopsis">
+                    {{ novel.synopsis }}
+                </div>
+            </div>
+            <h3 class="novel-title">{{ novel.title }}</h3>
+        </a>
+    </div>
+    {% endfor %}
+</div>
